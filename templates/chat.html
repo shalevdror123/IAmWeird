@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+
+{% block title %}Chat{% endblock %}
+
+{% block content %}
+<div id="chat-container">
+    <div id="message-container">
+        {% for message in messages %}
+        <p><strong>{{ message.user.username }}:</strong> {{ message.content }}</p>
+        {% endfor %}
+    </div>
+    
+    <form id="chat-form">
+        <input type="text" id="message-input" placeholder="Enter your message" autocomplete="off" />
+        <button type="submit">Send</button>
+    </form>
+</div>
+
+<script type="text/javascript">
+    var socket = io.connect('http://' + document.domain + ':' + location.port);
+    var messageContainer = document.getElementById('message-container');
+
+    // Function to scroll to the bottom of the message container
+    function scrollToBottom() {
+        messageContainer.scrollTop = messageContainer.scrollHeight;
+    }
+
+    // Handle sending messages
+    var form = document.getElementById('chat-form');
+    form.onsubmit = function(e) {
+        e.preventDefault();
+        var messageInput = document.getElementById('message-input');
+        var message = messageInput.value;
+        socket.emit('send_message', {'username': '{{ username }}', 'message': message});
+        messageInput.value = '';
+    };
+
+    // Handle receiving messages
+    socket.on('receive_message', function(data) {
+        var newMessage = document.createElement('p');
+        newMessage.innerHTML = '<strong>' + data.username + ':</strong> ' + data.message;
+        messageContainer.appendChild(newMessage);
+        
+        // Automatically scroll to the bottom when a new message is received
+        scrollToBottom();
+    });
+
+    // Scroll to the bottom on page load
+    window.onload = function() {
+        scrollToBottom();
+    };
+</script>
+{% endblock %}
