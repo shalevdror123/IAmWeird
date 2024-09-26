@@ -1,6 +1,5 @@
 Flask
 Flask-SocketIO
-SQLAlchemy
+Flask-SQLAlchemy
 eventlet
 gunicorn
-flask_sqlalchemy
